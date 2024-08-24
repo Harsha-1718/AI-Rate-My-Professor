@@ -6,29 +6,30 @@ import { useAuth } from './context/authContext'; // Custom hook to access user d
 import { signOut } from 'firebase/auth';
 import { auth } from './firebase/config';
 import { useRouter } from 'next/navigation';
-import SignIn from './signin/page';
-import SignUp from './signup/page';
+// import SignIn from './signin/page';
+// import SignUp from './signup/page';
 
 const Navbar = () => {
   const { user } = useAuth(); // Access the user object
-  const [openSignIn, setOpenSignIn] = useState(false);
-  const [openSignUp, setOpenSignUp] = useState(false);
+  // const [openSignIn, setOpenSignIn] = useState(false);
+  // const [openSignUp, setOpenSignUp] = useState(false);
   const router = useRouter();
 
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      router.push('/'); 
+      router.push('/'); // Redirect to home page immediately after sign out
     } catch (error) {
       console.error('Error signing out:', error);
     }
   };
+  
 
-  const handleOpenSignIn = () => setOpenSignIn(true);
-  const handleCloseSignIn = () => setOpenSignIn(false);
+  // const handleOpenSignIn = () => setOpenSignIn(true);
+  // const handleCloseSignIn = () => setOpenSignIn(false);
 
-  const handleOpenSignUp = () => setOpenSignUp(true);
-  const handleCloseSignUp = () => setOpenSignUp(false);
+  // const handleOpenSignUp = () => setOpenSignUp(true);
+  // const handleCloseSignUp = () => setOpenSignUp(false);
 
   return (
     <AppBar position="static"  sx={{ backgroundColor: 'black' }} >
