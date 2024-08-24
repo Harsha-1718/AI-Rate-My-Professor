@@ -1,15 +1,6 @@
+
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-}
-
-html, body {
-  height: 100%;
-  margin: 0;
-  background-color: #000; /* Ensure the background color is black */
-}
-
-#__next {
-  height: 100%; /* Ensures that the next.js root container takes up the full height */
 }
