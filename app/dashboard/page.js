@@ -1,24 +1,12 @@
-'use client';
-import { useEffect, useRef, useState } from 'react';
-import { Box, Button, Stack, TextField } from '@mui/material';
-import { FaArrowUp } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../context/authContext'; // Adjust the path as needed
+// app/page.js
+'use client'
+import { Box, Button, Stack, TextField, Typography } from '@mui/material';
+import { useState, useEffect, useRef } from 'react';
+import { FaArrowUp } from "react-icons/fa";
+import { useRouter } from 'next/navigation'; // Import useRouter hook
+import { useAuth } from '../context/authContext'; // Import useAuth hook
 
 export default function Dashboard() {
-  const { user } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!user) {
-      router.push('/landerpage'); // Redirect to the landing page if not authenticated
-    }
-  }, [user, router]);
-
-  if (!user) {
-    return <p>Redirecting...</p>; // Optionally show a loading or redirecting state
-  }
-
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -27,10 +15,18 @@ export default function Dashboard() {
   ]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef(null);
+  const { user } = useAuth(); // Access the user object
+  const router = useRouter(); // Initialize the router
+
+  useEffect(() => {
+    if (!user) {
+      // Redirect to landing page if user is not authenticated
+      router.push('/');
+    }
+  }, [user, router]);
 
   const sendMessage = async () => {
-    if (!message.trim()) return; // Don't send empty messages
+    if (!message.trim()) return;  // Don't send empty messages
 
     setMessage('');
     setMessages((messages) => [
@@ -72,10 +68,7 @@ export default function Dashboard() {
       console.error('Error:', error);
       setMessages((messages) => [
         ...messages,
-        {
-          role: 'assistant',
-          content: "I'm sorry, but I encountered an error. Please try again later.",
-        },
+        { role: 'assistant', content: "I'm sorry, but I encountered an error. Please try again later." },
       ]);
     }
   };
@@ -87,8 +80,10 @@ export default function Dashboard() {
     }
   };
 
+  const messagesEndRef = useRef(null);
+
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -120,7 +115,7 @@ export default function Dashboard() {
           spacing={2}
           flexGrow={1}
           overflow="auto"
-          maxHeight="100%"
+          maxHeight="100%"  
           pr={1} // Add padding-right for a scrollbar
         >
           {messages.map((message, index) => (
@@ -132,8 +127,16 @@ export default function Dashboard() {
               }
             >
               <Box
-                bgcolor={message.role === 'assistant' ? 'black' : 'white'}
-                color={message.role === 'assistant' ? 'white' : 'black'}
+                bgcolor={
+                  message.role === 'assistant'
+                    ? 'black'
+                    : 'white'
+                }
+                color={
+                  message.role === 'assistant'
+                    ? 'white'
+                    : 'black'
+                }
                 borderRadius={5}
                 border="3px solid black"
                 p={2}
@@ -153,8 +156,8 @@ export default function Dashboard() {
             onKeyPress={handleKeyPress}
             disabled={isLoading}
           />
-          <Button
-            variant="contained"
+          <Button 
+            variant="contained" 
             onClick={sendMessage}
             disabled={isLoading}
             sx={{
@@ -162,10 +165,11 @@ export default function Dashboard() {
               color: 'white',
               '&:hover': {
                 backgroundColor: 'green',
-              },
+              }, 
             }}
           >
-            <FaArrowUp />
+            <FaArrowUp/>
+            {/* {isLoading ? 'Sending...' : 'Send'} */}
           </Button>
         </Stack>
       </Stack>
