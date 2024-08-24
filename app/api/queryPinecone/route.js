@@ -1,6 +1,6 @@
 // /pages/api/queryPinecone.js
 
-import { Pinecone} from '@pinecone-database/client';
+import { Pinecone } from '@pinecone-database/pinecone';
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
@@ -15,6 +15,7 @@ export async function POST(req) {
 
     // Step 1: Convert the query into a vector using OpenAI's text-embedding model
     const queryVector = await encodeQueryToVector(query);
+   
 
     // Step 2: Initialize the Pinecone client
    
@@ -22,17 +23,17 @@ export async function POST(req) {
     const index = pc.Index('rag'); // Replace 'professors' with your actual Pinecone index name
 
     // Step 3: Query Pinecone for similar vectors
-    const queryResponse = await index.query({
-      queryVector, // The vector generated from the user's query
+    const queryResponse = await index.namespace("ns1").query({
+      vector: queryVector, // The vector generated from the user's query
       topK: 3, // Adjust this number based on how many top results you want
       includeMetadata: true, // Include metadata like the professor's name, university, etc.
     });
-
+console.log(queryResponse);
     const results = queryResponse.matches.map((match) => ({
       score: match.score,
       professor: match.metadata, // The metadata you stored when upserting data into Pinecone
     }));
-
+    console.log(results);
     return NextResponse.json(results);
   } catch (error) {
     console.error('Error querying Pinecone:', error);

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { Box, Stack, TextField, Button, Grid, Divider } from '@mui/material';
 import { useState, useEffect, useRef } from 'react';
 import { FaArrowUp } from "react-icons/fa";
@@ -39,12 +39,31 @@ export default function Dashboard() {
       ]);
 
       try {
+        const pineconeResponse = await fetch('/api/queryPinecone', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query: message }),
+        });
+
+        let pineconeData = null;
+
+        if (pineconeResponse.ok) {
+          pineconeData = await pineconeResponse.json();
+          console.log('Pinecone Data:', pineconeData);
+        }
+
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify([...messages, { role: 'user', content: message }]),
+          body: JSON.stringify([
+            ...messages,
+            { role: 'user', content: message },
+            { role: 'assistant', content: pineconeData ? `Relevant Professor Data: ${JSON.stringify(pineconeData)}` : '' },
+          ]),
         });
 
         if (!response.ok) {
@@ -96,8 +115,6 @@ export default function Dashboard() {
       const scrapeData = await scrapeResponse.json();
       console.log('Scraped Data:', scrapeData);
 
-
-      // Now, send the scraped data to your Python processing script
       const processResponse = await fetch('/api/upsert', {
         method: 'POST',
         headers: {
@@ -113,7 +130,6 @@ export default function Dashboard() {
       const processData = await processResponse.json();
       console.log('Processed Data:', processData);
 
-      // You can now use this processed data in your application (e.g., display it to the user)
     } catch (error) {
       console.error('Error during scraping and processing:', error);
       setMessages((messages) => [
