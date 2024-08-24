@@ -1,10 +1,9 @@
-// app/page.js
 'use client'
-import { Box, Button, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Stack, TextField } from '@mui/material';
 import { useState, useEffect, useRef } from 'react';
 import { FaArrowUp } from "react-icons/fa";
-import { useRouter } from 'next/navigation'; // Import useRouter hook
-import { useAuth } from '../context/authContext'; // Import useAuth hook
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../context/authContext';
 
 export default function Dashboard() {
   const [messages, setMessages] = useState([
@@ -15,18 +14,21 @@ export default function Dashboard() {
   ]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { user } = useAuth(); // Access the user object
-  const router = useRouter(); // Initialize the router
+  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
-      // Redirect to landing page if user is not authenticated
-      router.push('/');
-    }
+    // If user is undefined, do nothing (wait until user is either set or null)
+    if (user === undefined) return;
+
+    // If the user is null, redirect to the homepage
+    // if (user === null) {
+    //   router.replace('/');
+    // }
   }, [user, router]);
 
   const sendMessage = async () => {
-    if (!message.trim()) return;  // Don't send empty messages
+    if (!message.trim()) return;
 
     setMessage('');
     setMessages((messages) => [
@@ -90,6 +92,9 @@ export default function Dashboard() {
     scrollToBottom();
   }, [messages]);
 
+  // If user is undefined or null, show nothing to avoid rendering before the auth state is resolved
+  if (user === undefined || user === null) return null;
+
   return (
     <Box
       width="100vw"
@@ -115,7 +120,7 @@ export default function Dashboard() {
           spacing={2}
           flexGrow={1}
           overflow="auto"
-          maxHeight="100%"  
+          maxHeight="100%"
           pr={1} // Add padding-right for a scrollbar
         >
           {messages.map((message, index) => (
@@ -169,7 +174,6 @@ export default function Dashboard() {
             }}
           >
             <FaArrowUp/>
-            {/* {isLoading ? 'Sending...' : 'Send'} */}
           </Button>
         </Stack>
       </Stack>
