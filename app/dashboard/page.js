@@ -15,50 +15,110 @@ export default function Dashboard() {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Function to validate if the input string is a URL
+  function isValidURL(string) {
+    const regex = /^(https?:\/\/)?([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)+)([\/?].*)?$/;
+    return regex.test(string);
+  }
+
   const sendMessage = async () => {
     if (!message.trim()) return;
 
-    setMessage('');
-    setMessages((messages) => [
-      ...messages,
-      { role: 'user', content: message },
-      { role: 'assistant', content: '' },
-    ]);
+    const isURL = isValidURL(message);
 
+    if (isURL) {
+      console.log("The input is a valid URL:", message);
+      await handleScrapeAndProcess(message); // Call the scrape function if it's a valid URL
+    } else {
+      console.log("The input is not a URL");
+      // Handle the regular text input case
+      setMessages((messages) => [
+        ...messages,
+        { role: 'user', content: message },
+        { role: 'assistant', content: '' },
+      ]);
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify([...messages, { role: 'user', content: message }]),
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const text = decoder.decode(value, { stream: true });
+          setMessages((messages) => {
+            let lastMessage = messages[messages.length - 1];
+            let otherMessages = messages.slice(0, messages.length - 1);
+            return [
+              ...otherMessages,
+              { ...lastMessage, content: lastMessage.content + text },
+            ];
+          });
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        setMessages((messages) => [
+          ...messages,
+          { role: 'assistant', content: "I'm sorry, but I encountered an error. Please try again later." },
+        ]);
+      }
+    }
+
+    setMessage(''); // Clear the input field
+  };
+
+  const handleScrapeAndProcess = async (url) => {
     try {
-      const response = await fetch('/api/chat', {
+      const scrapeResponse = await fetch('/api/scrape', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify([...messages, { role: 'user', content: message }]),
+        body: JSON.stringify({ url }), // Send the URL to the scraping API
       });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+      if (!scrapeResponse.ok) {
+        throw new Error('Failed to scrape the URL');
       }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
+      const scrapeData = await scrapeResponse.json();
+      console.log('Scraped Data:', scrapeData);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const text = decoder.decode(value, { stream: true });
-        setMessages((messages) => {
-          let lastMessage = messages[messages.length - 1];
-          let otherMessages = messages.slice(0, messages.length - 1);
-          return [
-            ...otherMessages,
-            { ...lastMessage, content: lastMessage.content + text },
-          ];
-        });
+
+      // Now, send the scraped data to your Python processing script
+      const processResponse = await fetch('/api/upsert', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(scrapeData),
+      });
+
+      if (!processResponse.ok) {
+        throw new Error('Failed to process the scraped data');
       }
+
+      const processData = await processResponse.json();
+      console.log('Processed Data:', processData);
+
+      // You can now use this processed data in your application (e.g., display it to the user)
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error during scraping and processing:', error);
       setMessages((messages) => [
         ...messages,
-        { role: 'assistant', content: "I'm sorry, but I encountered an error. Please try again later." },
+        { role: 'assistant', content: "An error occurred while processing the URL. Please try again." },
       ]);
     }
   };
