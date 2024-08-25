@@ -1,0 +1,65 @@
+{
+    "reviews": [
+      {
+        "professorname": "Dr. John Doe",
+        "subject": "Computer Science",
+        "stars": 5,
+        "review": "Dr. Doe's lectures are always insightful and engaging. He explains complex concepts with ease."
+      },
+      {
+        "professorname": "Prof. Jane Smith",
+        "subject": "Mathematics",
+        "stars": 4,
+        "review": "Prof. Smith is very knowledgeable, but her lectures can be a bit fast-paced. Overall, a good experience."
+      },
+      {
+        "professorname": "Dr. Emily Brown",
+        "subject": "Physics",
+        "stars": 3,
+        "review": "Dr. Brown knows the material well, but I found the lectures somewhat dry and difficult to follow."
+      },
+      {
+        "professorname": "Prof. Michael Lee",
+        "subject": "Chemistry",
+        "stars": 5,
+        "review": "Prof. Lee is an excellent teacher. His enthusiasm for chemistry is contagious, and he makes learning fun."
+      },
+      {
+        "professorname": "Dr. Sarah Johnson",
+        "subject": "History",
+        "stars": 4,
+        "review": "Dr. Johnson is very passionate about history, and it shows in her lectures. However, the exams were quite challenging."
+      },
+      {
+        "professorname": "Prof. Robert Wilson",
+        "subject": "Biology",
+        "stars": 3,
+        "review": "Prof. Wilson is knowledgeable, but his lectures can be quite monotonous. The labs, however, were well-organized."
+      },
+      {
+        "professorname": "Dr. Linda Martinez",
+        "subject": "Economics",
+        "stars": 4,
+        "review": "Dr. Martinez offers a balanced view of economic theories. Her classes are well-structured and she encourages class participation."
+      },
+      {
+        "professorname": "Prof. William Davis",
+        "subject": "Philosophy",
+        "stars": 5,
+        "review": "Prof. Davis is a brilliant philosopher. His thought-provoking lectures inspire deep reflection and critical thinking."
+      },
+      {
+        "professorname": "Dr. Nancy Taylor",
+        "subject": "English Literature",
+        "stars": 4,
+        "review": "Dr. Taylor's deep understanding of literature is evident in her lectures. However, her grading is quite strict."
+      },
+      {
+        "professorname": "Prof. Kevin Moore",
+        "subject": "Sociology",
+        "stars": 5,
+        "review": "Prof. Moore is an outstanding professor. His dynamic teaching style and real-world examples make sociology incredibly interesting."
+      }
+    ]
+  }
+  

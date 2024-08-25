@@ -1,15 +1,16 @@
 'use client'
 import { useState } from 'react';
-import { Button, TextField, Container, Typography } from '@mui/material';
+import { Button, TextField, Container, Typography, Alert, Box } from '@mui/material';
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '../firebase/config'; // Import Firestore
 import { doc, setDoc } from 'firebase/firestore';
 import { FcGoogle } from "react-icons/fc"; // Import Google icon
 
-export default function SignUp({toggleForm}) {
+export default function SignUp({ toggleForm }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const router = useRouter();
 
   const handleSignUp = async (e) => {
@@ -24,9 +25,9 @@ export default function SignUp({toggleForm}) {
         createdAt: new Date(),
       });
 
-      // onClose();
       router.push('/dashboard');
     } catch (error) {
+      setError('Error signing up. Please try again.');
       console.error('Error signing up:', error);
     }
   };
@@ -44,95 +45,109 @@ export default function SignUp({toggleForm}) {
         createdAt: new Date(),
       });
 
-      // onClose();
       router.push('/dashboard');
     } catch (error) {
+      setError('Error signing up with Google. Please try again.');
       console.error('Error signing up with Google:', error);
     }
   };
 
   return (
     <Container
-    sx={{
-      backgroundColor: 'white',
-      color: 'black',
-      width: '400px',
-      height: '300px',
-      // border: '3px solid black',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      // alignItems: 'center',
-      padding: '20px',
-    }}
+      sx={{
+        backgroundColor: 'black',
+        color: 'white',
+        width: '100%',
+        maxWidth: '400px',
+        borderRadius: '12px',
+        padding: '20px',
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+      }}
     >
-      <h2 variant="h5" fontSize={'20px'}  mb={3}>
+      <Typography variant="h4" sx={{ marginBottom: '20px', color: 'white' }}>
         Sign Up
-      </h2>
-      <Typography variant='p'
-          onClick={toggleForm}
-          style={{
-            color: 'blue',
-            textDecoration: 'underline',
-            cursor: 'pointer',
-          }}
-        >
-          Already have an account?
-        </Typography>
+      </Typography>
+      <Typography
+        variant="body2"
+        onClick={toggleForm}
+        sx={{
+          color: 'white',
+          textDecoration: 'underline',
+          cursor: 'pointer',
+          marginBottom: '20px',
+        }}
+      >
+        Already have an account?
+      </Typography>
+      {error && <Alert severity="error" variant="filled" sx={{ mb: 2 }}>{error}</Alert>}
       <form onSubmit={handleSignUp} style={{ width: '100%' }}>
-      <h5>Email</h5>
-        <TextField
-          label="Email"
-          type="email"
-          fullWidth
-          margin="normal"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          sx={{ marginBottom: '20px' }}
-        />
-        <h5>Password</h5>
-        <TextField
-          label="Password"
-          type="password"
-          fullWidth
-          margin="normal"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          sx={{ marginBottom: '20px' }}
-        />
+        <Box sx={{ marginBottom: '20px' }}>
+          <Typography variant="body1" sx={{ color: 'white', marginBottom: '5px' }}>Email</Typography>
+          <TextField
+            label="Email"
+            type="email"
+            fullWidth
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            InputLabelProps={{ style: { color: 'white' } }}
+            sx={{
+              input: { color: 'white', backgroundColor: 'black', border: '1px solid white', borderRadius: '5px' },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': { borderColor: 'white' },
+                '&:hover fieldset': { borderColor: 'white' },
+              },
+            }}
+          />
+        </Box>
+        <Box sx={{ marginBottom: '20px' }}>
+          <Typography variant="body1" sx={{ color: 'white', marginBottom: '5px' }}>Password</Typography>
+          <TextField
+            label="Password"
+            type="password"
+            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            InputLabelProps={{ style: { color: 'white' } }}
+            sx={{
+              input: { color: 'white', backgroundColor: 'black', border: '1px solid white', borderRadius: '5px' },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': { borderColor: 'white' },
+                '&:hover fieldset': { borderColor: 'white' },
+              },
+            }}
+          />
+        </Box>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
           <Button
             type="submit"
             variant="contained"
             sx={{
-              backgroundColor: 'black',
-              color: 'white',
+              backgroundColor: 'white',
+              color: 'black',
               '&:hover': {
-                backgroundColor: '#9FE2BF',
-                color: 'black',
+                backgroundColor: 'black',
+                color: 'white',
               },
-              flex: 1, // Allow buttons to share space equally
+              flex: '1',
               marginRight: '10px',
             }}
           >
             Sign Up
           </Button>
           <Button
-            variant="contained"
+            variant="outlined"
             onClick={handleGoogleSignUp}
             sx={{
-              backgroundColor: 'white', // Google's red color
+              borderColor: 'white',
               color: 'white',
               '&:hover': {
-                backgroundColor: '#9FE2BF',
+                backgroundColor: 'white',
+                color: 'black',
               },
-              flex: 1, // Allow buttons to share space equally
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              flex: '1',
             }}
           >
-            <FcGoogle style={{ fontSize: '24px' }} /> {/* Increase the icon size */}
+            <FcGoogle style={{ fontSize: '24px' }} />
           </Button>
         </div>
       </form>

@@ -7,9 +7,6 @@ import { auth, db } from '../firebase/config'; // Ensure you have db (Firestore)
 import { doc, getDoc } from 'firebase/firestore';
 import { FcGoogle } from "react-icons/fc";
 
-
-
-//{ onClose }
 export default function SignIn({ toggleForm }) {     
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,7 +17,6 @@ export default function SignIn({ toggleForm }) {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // onClose();
       router.push('/dashboard');
     } catch (error) {
       if (error.code === 'auth/user-not-found') {
@@ -41,101 +37,109 @@ export default function SignIn({ toggleForm }) {
 
       if (!userSnapshot.exists()) {
         setError('User does not exist. Please sign up first.');
-        await auth.signOut(); // Sign out the user if they do not exist
+        await auth.signOut();
         return;
       }
 
-      // onClose();
       router.push('/dashboard');
     } catch (error) {
       console.error('Error signing in with Google:', error);
     }
   };
 
-  const handleSignUpRedirect = () => {
-    router.push('/signup');
-  };
-
   return (
     <Container
       sx={{
-        backgroundColor: 'white',
-        color: 'black',
-        width: '400px',
-        height: '300px',
-        // border: '3px solid black',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        // alignItems: 'center',
+        backgroundColor: 'black',
+        borderRadius: '12px',
         padding: '20px',
+        width: '400px',
+        color: 'white',
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)', // Optional shadow for a sleek look
       }}
     >
-      <h2 variant="h4" >
+      <Typography variant="h4" sx={{ marginBottom: '20px', color: 'white' }}>
         Welcome back!
-      </h2>
-      <Typography variant='p'
-          onClick={toggleForm}
-          style={{
-            color: 'blue',
-            textDecoration: 'underline',
-            cursor: 'pointer',
-          }}
-        >
-          Don't have an account?
-        </Typography>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      </Typography>
+      <Typography
+        variant="body2"
+        onClick={toggleForm}
+        sx={{
+          color: 'white',
+          textDecoration: 'underline',
+          cursor: 'pointer',
+          marginBottom: '20px',
+        }}
+      >
+        Don't have an account?
+      </Typography>
+      {error && <Alert severity="error" sx={{ mb: 2, backgroundColor: 'black', color: 'white', border: '1px solid white' }}>{error}</Alert>}
       <form onSubmit={handleSignIn} style={{ width: '100%' }}>
-        <h5>Email</h5>
+        <Typography variant="body1" sx={{ color: 'white', marginBottom: '10px' }}>Email</Typography>
         <TextField
           label="Email"
           type="email"
           fullWidth
-          margin="normal"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          sx={{ marginBottom: '20px' }}
+          InputLabelProps={{ style: { color: 'white' } }}
+          sx={{
+            marginBottom: '20px',
+            input: { color: 'white', backgroundColor: 'black', border: '1px solid white', borderRadius: '5px' },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: 'white' },
+              '&:hover fieldset': { borderColor: 'white' },
+            },
+          }}
         />
-        <h5>Password</h5>
+        <Typography variant="body1" sx={{ color: 'white', marginBottom: '10px' }}>Password</Typography>
         <TextField
           label="Password"
           type="password"
           fullWidth
-          margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          sx={{ marginBottom: '20px' }}
+          InputLabelProps={{ style: { color: 'white' } }}
+          sx={{
+            marginBottom: '20px',
+            input: { color: 'white', backgroundColor: 'black', border: '1px solid white', borderRadius: '5px' },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: 'white' },
+              '&:hover fieldset': { borderColor: 'white' },
+            },
+          }}
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
           <Button
             type="submit"
             variant="contained"
             sx={{
-              backgroundColor: 'black',
-              color: 'white',
+              backgroundColor: 'white',
+              color: 'black',
               '&:hover': {
-                backgroundColor: '#9FE2BF',
-                color: 'black',
+                backgroundColor: 'black',
+                color: 'white',
               },
-              flex: 1, // Allow buttons to share space equally
+              flex: 1,
               marginRight: '10px',
             }}
           >
             Sign In
           </Button>
           <Button
-          variant="contained"
+            variant="outlined"
             onClick={handleGoogleSignIn}
             sx={{
-              backgroundColor: 'white', // Google's red color
+              borderColor: 'white',
               color: 'white',
               '&:hover': {
-                backgroundColor: '#9FE2BF',
+                backgroundColor: 'white',
+                color: 'black',
               },
-              flex: 1, // Allow buttons to share space equally
+              flex: 1,
             }}
           >
-              <FcGoogle  style={{ fontSize: '24px' }} />
+            <FcGoogle style={{ fontSize: '24px' }} />
           </Button>
         </div>
       </form>
