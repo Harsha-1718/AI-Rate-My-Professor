@@ -1,11 +1,12 @@
 'use client';
-import { Box, Stack, TextField, Button, Grid, Divider } from '@mui/material';
+import { Box, Stack, TextField, Button, Grid } from '@mui/material';
 import { useState, useEffect, useRef } from 'react';
 import { FaArrowUp } from "react-icons/fa";
 import ProfessorList from '../Professors/page';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/authContext';
+// import Navbar from '../navbar';
 
 export default function Dashboard() {
   const [messages, setMessages] = useState([
@@ -16,33 +17,31 @@ export default function Dashboard() {
   ]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [professorData,setProfessorData] = useState([]);
+  const [professorData, setProfessorData] = useState([]);
   const { user } = useAuth();
   const router = useRouter();
 
-  // Redirect to login if user is not authenticated
+  // Redirect to landing page if user is not authenticated
   useEffect(() => {
-    if (user === undefined) return;
+    if (user === undefined || user === null) {
+      router.push('/'); // Redirect to landing page if user is not authenticated
+    }
   }, [user, router]);
 
-  function mapScrapedToProcessed(scrapedData) {
-    return {
-        professor: {
-            name: scrapedData.professorInfo.name || "N/A",
-            university: scrapedData.professorInfo.university || "N/A",
-            rating: scrapedData.professorInfo.rating || "N/A",
-            department: scrapedData.professorInfo.department || "N/A",
-            reviews: scrapedData.professorInfo.reviews || []
-        },
-        score: scrapedData.professorInfo.score || 0.0 // Assuming a score field is part of the processed data
+  // Ensure redirect when clicking back
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      router.push('/'); // Redirect to landing page
+      event.returnValue = ''; // For browsers that require a returnValue
     };
-}
 
-  // Function to validate if the input string is a URL
-  function isValidURL(string) {
-    const regex = /^(https?:\/\/)?([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)+)([\/?].*)?$/;
-    return regex.test(string);
-  }
+    window.addEventListener('popstate', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('popstate', handleBeforeUnload);
+    };
+  }, [router]);
 
   const sendMessage = async () => {
     if (!message.trim()) return;
@@ -259,6 +258,7 @@ export default function Dashboard() {
   if (user === undefined || user === null) return null;
 
   return (
+    // <Navbar />,
     <Box
       width="100vw"
       height="85vh"
@@ -268,8 +268,8 @@ export default function Dashboard() {
       p={2}
     >
       <Grid container sx={{ height: '100%' }} spacing={2}> {/* Added spacing between grid items */}
-        {/* Adjusting the width of the chat component */}
-        <Grid item xs={12} md={6} sx={{ pr: 1 }}> {/* Set md to 6 to make it half screen */}
+        {/* Adjusted grid item xs and md values */}
+        <Grid item xs={12} md={6} sx={{ pr: 1 }}>
           <motion.div
             initial="hidden"
             animate="visible"

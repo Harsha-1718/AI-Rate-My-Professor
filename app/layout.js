@@ -11,7 +11,7 @@ export default function RootLayout({ children }) {
       <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <AuthProvider>
           <CssBaseline />
-          <Navbar />
+         <Navbar/>
           <main style={{ flex: 1 }}>
             {children} 
           </main>
