@@ -25,15 +25,15 @@ export async function POST(req) {
     // Step 3: Query Pinecone for similar vectors
     const queryResponse = await index.namespace("ns1").query({
       vector: queryVector, // The vector generated from the user's query
-      topK: 3, // Adjust this number based on how many top results you want
+      topK: 1, // Adjust this number based on how many top results you want
       includeMetadata: true, // Include metadata like the professor's name, university, etc.
     });
-console.log(queryResponse);
+
     const results = queryResponse.matches.map((match) => ({
       score: match.score,
       professor: match.metadata, // The metadata you stored when upserting data into Pinecone
     }));
-    console.log(results);
+   
     return NextResponse.json(results);
   } catch (error) {
     console.error('Error querying Pinecone:', error);
