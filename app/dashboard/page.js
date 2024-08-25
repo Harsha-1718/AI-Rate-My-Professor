@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { FaArrowUp } from "react-icons/fa";
 import ProfessorList from '../Professors/page';
 import { motion } from 'framer-motion';
-import {useRouter} from 'next/navigation'
-import {useAuth} from '../context/authContext'
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../context/authContext';
 
 export default function Dashboard() {
   const [messages, setMessages] = useState([
@@ -16,13 +16,16 @@ export default function Dashboard() {
   ]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const {user} = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
+  // Redirect to login if user is not authenticated
   useEffect(() => {
-    if(user === undefined) return ;
-  
- },[user,router]);
+    if (user === undefined) return;
+    if (user === null) {
+      
+    }
+  }, [user, router]);
 
   // Function to validate if the input string is a URL
   function isValidURL(string) {
@@ -33,10 +36,16 @@ export default function Dashboard() {
   const sendMessage = async () => {
     if (!message.trim()) return;
 
+    setIsLoading(true);
     const isURL = isValidURL(message);
 
     if (isURL) {
       console.log("The input is a valid URL:", message);
+      setMessages((messages) => [
+        ...messages,
+        { role: 'user', content: message },
+        { role: 'assistant', content: 'Processing the link and fetching details...' },
+      ]);
       await handleScrapeAndProcess(message); // Call the scrape function if it's a valid URL
     } else {
       console.log("The input is not a URL");
@@ -105,10 +114,12 @@ export default function Dashboard() {
     }
 
     setMessage(''); // Clear the input field
+    setIsLoading(false);
   };
 
   const handleScrapeAndProcess = async (url) => {
     try {
+      // Step 1: Scrape the professor data
       const scrapeResponse = await fetch('/api/scrape', {
         method: 'POST',
         headers: {
@@ -124,6 +135,7 @@ export default function Dashboard() {
       const scrapeData = await scrapeResponse.json();
       console.log('Scraped Data:', scrapeData);
 
+      // Step 2: Upsert the scraped data into Pinecone
       const processResponse = await fetch('/api/upsert', {
         method: 'POST',
         headers: {
@@ -139,34 +151,61 @@ export default function Dashboard() {
       const processData = await processResponse.json();
       console.log('Processed Data:', processData);
 
+      // Step 3: Generate a summary for the scraped professor data
+      const summaryResponse = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify([
+          ...messages,
+          { role: 'system', content: `Generate a summary for the following professor data: ${JSON.stringify(scrapeData)}` },
+        ]),
+      });
+
+      if (!summaryResponse.ok) {
+        throw new Error('Failed to generate summary');
+      }
+
+      const reader = summaryResponse.body.getReader();
+      const decoder = new TextDecoder();
+
+      let summaryContent = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        summaryContent += decoder.decode(value, { stream: true });
+      }
+
+      // Step 4: Update the messages with the summary
+      setMessages((messages) => [
+        ...messages,
+        { role: 'assistant', content: `Here's what I found for the link: ${url}\n\n${summaryContent}` },
+      ]);
+
     } catch (error) {
       console.error('Error during scraping and processing:', error);
       setMessages((messages) => [
         ...messages,
         { role: 'assistant', content: "An error occurred while processing the URL. Please try again." },
       ]);
+    } finally {
+      setIsLoading(false);
     }
   };
-  
 
   const handleKeyPress = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       sendMessage();
-      event.preventDefault();
-      sendMessage();
     }
   };
-  
 
   const messagesEndRef = useRef(null);
-  
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-   
-  
 
   useEffect(() => {
     scrollToBottom();
@@ -198,7 +237,10 @@ export default function Dashboard() {
       transition: { duration: 0.8, ease: "easeInOut" },
     },
   };
+
+  // Redirect or show a loading state if user is not authenticated
   if (user === undefined || user === null) return null;
+
   return (
     <Box
       width="100vw"
@@ -209,7 +251,8 @@ export default function Dashboard() {
       p={2}
     >
       <Grid container sx={{ height: '100%' }}>
-        <Grid item xs={12} md={4} sx={{ pr: 2 }}>
+        {/* Adjusting the width of the chat component */}
+        <Grid item xs={12} md={5} sx={{ pr: 2 }}> {/* Adjusted md to 5 */}
           <motion.div
             initial="hidden"
             animate="visible"
@@ -275,7 +318,13 @@ export default function Dashboard() {
                         border="3px solid black"
                         p={2}
                       >
-                        {message.content}
+                        {message.role === 'user' && isValidURL(message.content) ? (
+                          <a href={message.content} target="_blank" rel="noopener noreferrer" style={{ color: 'blue', textDecoration: 'underline' }}>
+                            {message.content}
+                          </a>
+                        ) : (
+                          message.content
+                        )}
                       </Box>
                     </Box>
                   </motion.div>
@@ -321,7 +370,8 @@ export default function Dashboard() {
           </motion.div>
         </Grid>
 
-        <Grid item xs={12} md={7.8} sx={{ pl: 2 }}>
+        {/* Adjusting the width of the ProfessorList component */}
+        <Grid item xs={12} md={6.5} sx={{ pl: 2 }}> {/* Adjusted md to 6.5 */}
           <motion.div
             initial="hidden"
             animate="visible"
@@ -333,5 +383,4 @@ export default function Dashboard() {
       </Grid>
     </Box>
   );
-
 }
