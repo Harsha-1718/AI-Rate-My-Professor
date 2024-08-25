@@ -1,19 +1,21 @@
 'use client';
-import { AuthProvider } from './context/authContext'; // Ensure this path is correct
+import { AuthProvider } from './context/authContext'; 
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Navbar from './navbar';
+import Footer from './footer/page';
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
+      <body style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <AuthProvider>
           <CssBaseline />
           <Navbar />
-          <main>
-            {children} {/* This renders the content of each page */}
+          <main style={{ flex: 1 }}>
+            {children} 
           </main>
+          <Footer />
         </AuthProvider>
       </body>
     </html>

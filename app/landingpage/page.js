@@ -19,7 +19,8 @@ export default function Landingpage() {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        padding: '25px'
+        padding: '25px',
+        // marginBottom:'20%',
       }}
     >
       <motion.div
