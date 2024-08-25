@@ -33,7 +33,7 @@ function ProfessorList() {
               sx={{
                 color: "white",
                 backgroundImage: 'linear-gradient(to right, #434343, #000000)',
-                padding: '16px',
+                padding: 'px',
                 borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
               }}
               subheaderTypographyProps={{ style: { color: 'rgba(255, 255, 255, 0.7)' } }}
