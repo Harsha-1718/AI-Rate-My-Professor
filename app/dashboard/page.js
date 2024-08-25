@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { FaArrowUp } from "react-icons/fa";
 import ProfessorList from '../Professors/page';
 import { motion } from 'framer-motion';
+import {useRouter} from 'next/navigation'
+import {useAuth} from '../context/authContext'
 
 export default function Dashboard() {
   const [messages, setMessages] = useState([
@@ -14,6 +16,13 @@ export default function Dashboard() {
   ]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const {user} = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if(user === undefined) return ;
+  
+ },[user,router]);
 
   // Function to validate if the input string is a URL
   function isValidURL(string) {
@@ -138,19 +147,26 @@ export default function Dashboard() {
       ]);
     }
   };
+  
 
   const handleKeyPress = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       sendMessage();
+      event.preventDefault();
+      sendMessage();
     }
   };
+  
 
   const messagesEndRef = useRef(null);
+  
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+   
+  
 
   useEffect(() => {
     scrollToBottom();
@@ -182,7 +198,7 @@ export default function Dashboard() {
       transition: { duration: 0.8, ease: "easeInOut" },
     },
   };
-
+  if (user === undefined || user === null) return null;
   return (
     <Box
       width="100vw"
@@ -317,4 +333,5 @@ export default function Dashboard() {
       </Grid>
     </Box>
   );
+
 }
