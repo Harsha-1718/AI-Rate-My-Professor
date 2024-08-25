@@ -1,15 +1,21 @@
-'use client'
+'use client';
 import Image from "next/image";
 import { Button } from "@mui/material";
 import { FaArrowRight } from "react-icons/fa";
 import { useRouter } from 'next/navigation';
 import { motion } from "framer-motion";
+import { useAuth } from '../context/authContext'; // Adjust the import path as needed
 
 export default function Landingpage() {
+  const { user } = useAuth(); // Get user from auth context
   const router = useRouter();
 
   const handleButtonClick = () => {
-    router.push('/landerpage'); // Navigate to the /lander page
+    if (user) {
+      router.push('/dashboard'); // Navigate to dashboard if user is signed in
+    } else {
+      router.push('/landerpage'); // Navigate to /landerpage if user is not signed in
+    }
   };
 
   return (

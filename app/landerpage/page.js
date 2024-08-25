@@ -1,16 +1,24 @@
-'use client'
+'use client';
 import { useState } from "react";
 import { Button } from "@mui/material";
 import SignIn from "../signin/page"; // Adjust the import if necessary
 import Image from "next/image";
 import SignUp from "../signup/page";
 import { motion } from "framer-motion";
+import { useAuth } from '../context/authContext'; // Import your auth hook
+import { useRouter } from 'next/navigation';
 
 export default function Landerpage() {
   const [isSignUp, setIsSignUp] = useState(false);
+  const { user } = useAuth(); // Get the user from auth context
+  const router = useRouter();
 
   const toggleForm = () => {
     setIsSignUp(!isSignUp);
+  };
+
+  const handleGoToDashboard = () => {
+    router.push('/dashboard');
   };
 
   return (
@@ -57,7 +65,24 @@ export default function Landerpage() {
         transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
         style={{ width: '100%', maxWidth: '400px' }}
       >
-        {isSignUp ? (
+        {user ? (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleGoToDashboard}
+            fullWidth
+            sx={{
+              backgroundColor: 'black',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: 'grey',
+                color:'black'
+              }, 
+            }}
+          >
+            Go to Dashboard
+          </Button>
+        ) : isSignUp ? (
           <SignUp toggleForm={toggleForm} />
         ) : (
           <SignIn toggleForm={toggleForm} />
