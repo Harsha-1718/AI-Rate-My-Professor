@@ -1,7 +1,7 @@
 // app/components/Navbar.js
 'use client'
 import React, { useState, useEffect } from 'react';
-import { AppBar, Toolbar, Button, Typography, Dialog, DialogTitle, DialogContent } from '@mui/material';
+import { AppBar, Toolbar, Button, Typography, Box, Link, Dialog, DialogTitle, DialogContent } from '@mui/material';
 import { useAuth } from './context/authContext'; // Custom hook to access user data
 import { signOut } from 'firebase/auth';
 import { auth } from './firebase/config';
@@ -34,8 +34,16 @@ const Navbar = () => {
   return (
     <AppBar position="static"  sx={{ backgroundColor: 'black' }} >
       <Toolbar>
+      <Link href={user ? '/dashboard' : '/landerpage'}>
+      <Box
+              component="img"
+              src="/ProfessorLogo.jpg" // Update with your logo's path
+              alt="RateGenius Logo"
+              sx={{ width: 45, height: 45, mr: 1 }} // Adjust size and spacing
+            />
+        </Link>
         <Typography variant="h6" style={{ flexGrow: 1 }} textAlign={'center'}>
-          RateMyProfessorAI
+          RateGenius
         </Typography>
         {user ? (
           <>
