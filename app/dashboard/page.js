@@ -16,16 +16,27 @@ export default function Dashboard() {
   ]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [professorData,setProfessorData] = useState([]);
   const { user } = useAuth();
   const router = useRouter();
 
   // Redirect to login if user is not authenticated
   useEffect(() => {
     if (user === undefined) return;
-    if (user === null) {
-      
-    }
   }, [user, router]);
+
+  function mapScrapedToProcessed(scrapedData) {
+    return {
+        professor: {
+            name: scrapedData.professorInfo.name || "N/A",
+            university: scrapedData.professorInfo.university || "N/A",
+            rating: scrapedData.professorInfo.rating || "N/A",
+            department: scrapedData.professorInfo.department || "N/A",
+            reviews: scrapedData.professorInfo.reviews || []
+        },
+        score: scrapedData.professorInfo.score || 0.0 // Assuming a score field is part of the processed data
+    };
+}
 
   // Function to validate if the input string is a URL
   function isValidURL(string) {
@@ -69,6 +80,8 @@ export default function Dashboard() {
 
         if (pineconeResponse.ok) {
           pineconeData = await pineconeResponse.json();
+          setProfessorData(pineconeData);
+          console.log(professorData);
           console.log('Pinecone Data:', pineconeData);
         }
 
@@ -133,7 +146,11 @@ export default function Dashboard() {
       }
 
       const scrapeData = await scrapeResponse.json();
-      console.log('Scraped Data:', scrapeData);
+      const processedData = mapScrapedToProcessed(scrapeData);
+
+      // Set the professorData state
+      setProfessorData([processedData]);
+      console.log(processedData);
 
       // Step 2: Upsert the scraped data into Pinecone
       const processResponse = await fetch('/api/upsert', {
@@ -149,7 +166,7 @@ export default function Dashboard() {
       }
 
       const processData = await processResponse.json();
-      console.log('Processed Data:', processData);
+   
 
       // Step 3: Generate a summary for the scraped professor data
       const summaryResponse = await fetch('/api/chat', {
@@ -250,9 +267,9 @@ export default function Dashboard() {
       alignItems="center"
       p={2}
     >
-      <Grid container sx={{ height: '100%' }}>
+      <Grid container sx={{ height: '100%' }} spacing={2}> {/* Added spacing between grid items */}
         {/* Adjusting the width of the chat component */}
-        <Grid item xs={12} md={5} sx={{ pr: 2 }}> {/* Adjusted md to 5 */}
+        <Grid item xs={12} md={6} sx={{ pr: 1 }}> {/* Set md to 6 to make it half screen */}
           <motion.div
             initial="hidden"
             animate="visible"
@@ -359,25 +376,13 @@ export default function Dashboard() {
           </motion.div>
         </Grid>
 
-        <Grid item>
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={dividerVariants}
-            style={{ originY: 0 }}
-          >
-            <Divider orientation="vertical" flexItem sx={{ height: '100%', backgroundColor: 'black' }} />
-          </motion.div>
-        </Grid>
-
-        {/* Adjusting the width of the ProfessorList component */}
-        <Grid item xs={12} md={6.5} sx={{ pl: 2 }}> {/* Adjusted md to 6.5 */}
+        <Grid item xs={12} md={6} sx={{ pl: 1 }}> {/* Set md to 6 to make it half screen */}
           <motion.div
             initial="hidden"
             animate="visible"
             variants={listVariants}
           >
-            <ProfessorList />
+            <ProfessorList professordata = {professorData}/>
           </motion.div>
         </Grid>
       </Grid>
