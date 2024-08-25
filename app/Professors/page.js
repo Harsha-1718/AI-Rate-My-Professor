@@ -1,17 +1,11 @@
 import { Grid, Card, CardHeader, CardContent, Typography, Button, CardActions } from '@mui/material';
 import Link from 'next/link';
 
-const professors = [
-  { id: 1, name: 'Dr. John Doe', university: 'University of Texas', rating: 4.5, shortDescription: 'Expert in AI and Machine Learning.' },
-  { id: 2, name: 'Dr. Jane Smith', university: 'University of Colorado', rating: 4.2, shortDescription: 'Specializes in Quantum Computing.' },
-  // Add more professor data here
-];
-
-function ProfessorList() {
+function ProfessorList({ professordata }) {
   return (
     <Grid container spacing={3}>
-      {professors.map(professor => (
-        <Grid item xs={12} sm={6} md={4} key={professor.id}>
+      {professordata.map((professor, index) => (
+        <Grid item xs={12} sm={6} key={index}>
           <Card 
             sx={{ 
               cursor: 'pointer', 
@@ -28,8 +22,8 @@ function ProfessorList() {
             elevation={8}
           >
             <CardHeader 
-              title={professor.name}
-              subheader={professor.university}
+              title={professor.professor.name} // Access the professor's name
+              // subheader={professor.professor.university} // Access the university name
               sx={{
                 color: "white",
                 backgroundImage: 'linear-gradient(to right, #434343, #000000)',
@@ -40,14 +34,17 @@ function ProfessorList() {
             />
             <CardContent sx={{ padding: '16px' }}>
               <Typography variant="body1" color="white" sx={{ marginBottom: 1 }}>
-                <strong>Quality Rating:</strong> {professor.rating} ★
+                <strong>Quality Rating:</strong> {professor.professor.rating} ★
               </Typography>
               <Typography variant="body2" color="rgba(255, 255, 255, 0.8)">
-                {professor.shortDescription}
+                {professor.professor.department} {/* Display the department */}
               </Typography>
+              {/* <Typography variant="body2" color="rgba(255, 255, 255, 0.8)">
+                {professor.professor.reviews ? professor.professor.reviews.join(' | ') : 'No reviews available'} 
+              </Typography> */}
             </CardContent>
             <CardActions sx={{ padding: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.2)' }}>
-              <Link href={`/professor/${professor.id}`} passHref>
+              <Link href={`/professor/${index}`} passHref>
                 <Button 
                   size="small" 
                   sx={{ 
