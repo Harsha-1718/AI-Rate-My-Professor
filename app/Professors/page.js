@@ -4,8 +4,8 @@ import Link from 'next/link';
 function ProfessorList({ professordata }) {
   return (
     <Grid container spacing={3}>
-      {professordata.map((professor, index) => (
-        <Grid item xs={12} sm={6} key={index}>
+      {professordata.map((professor) => (
+        <Grid item xs={12} sm={6} key={professor.professor.name}>
           <Card 
             sx={{ 
               cursor: 'pointer', 
@@ -22,8 +22,8 @@ function ProfessorList({ professordata }) {
             elevation={8}
           >
             <CardHeader 
-              title={professor.professor.name} // Access the professor's name
-              // subheader={professor.professor.university} // Access the university name
+              title={professor.professor.name} 
+              subheader={professor.professor.university} 
               sx={{
                 color: "white",
                 backgroundImage: 'linear-gradient(to right, #434343, #000000)',
@@ -37,14 +37,11 @@ function ProfessorList({ professordata }) {
                 <strong>Quality Rating:</strong> {professor.professor.rating} ★
               </Typography>
               <Typography variant="body2" color="rgba(255, 255, 255, 0.8)">
-                {professor.professor.department} {/* Display the department */}
+                {professor.professor.department}
               </Typography>
-              {/* <Typography variant="body2" color="rgba(255, 255, 255, 0.8)">
-                {professor.professor.reviews ? professor.professor.reviews.join(' | ') : 'No reviews available'} 
-              </Typography> */}
             </CardContent>
             <CardActions sx={{ padding: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.2)' }}>
-              <Link href={`/professor/${index}`} passHref>
+              <Link href={`/Professors/${encodeURIComponent(professor.professor.name)}`} passHref>
                 <Button 
                   size="small" 
                   sx={{ 
