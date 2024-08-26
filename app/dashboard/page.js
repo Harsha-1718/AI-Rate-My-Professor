@@ -348,7 +348,6 @@ export default function Dashboard() {
   if (user === undefined || user === null) return null;
 
   return (
-    // <Navbar />,
     <Box
       width="100vw"
       height="85vh"
@@ -356,6 +355,7 @@ export default function Dashboard() {
       justifyContent="center"
       alignItems="center"
       p={2}
+      
     >
       <Grid container sx={{ height: '100%' }} spacing={2}> {/* Added spacing between grid items */}
         {/* Adjusted grid item xs and md values */}
@@ -368,7 +368,7 @@ export default function Dashboard() {
           >
             <Stack
               direction={'column'}
-              height="100%"
+              height="88%"
               border="5px solid black"
               borderRadius={5}
               p={2}
