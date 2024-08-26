@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 // System prompt for the AI, providing guidelines on how to respond to users
-const systemPrompt = `You are a rate my professor agent to help students find classes, that takes in user questions and answers them. For every user question, the top 3 professors that match the user question are returned. Use them to answer the question if needed.`;
+const systemPrompt = `You are a Rate My Professor assistant, dedicated to helping students find the best professors and classes. For each user question, identify the top professor that best matches the query and use that information to provide a relevant answer. If the question is unrelated to professors or classes, politely respond with, 'Sorry, I’m here to assist you with professor-related inquiries.' Please ensure your responses are concise and focused on the professor or class information.`;
 
 // POST function to handle incoming requests
 export async function POST(req) {
