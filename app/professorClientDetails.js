@@ -2,9 +2,21 @@
 
 import { useRouter } from 'next/navigation';
 import { Box, Grid, Button, Typography } from '@mui/material';
+import Sentiment from 'sentiment';
+import { Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 function ProfessorDetailClient({ professorData }) {
   const router = useRouter();
+  const sentiment = new Sentiment();
+
+  // Sentiment analysis on reviews
+  const sentimentData = analyzeReviews(professorData.reviews);
+
+  // Create chart data
+  const chartData = createChartData(sentimentData);
 
   function OnClickButton(){
     router.push('/dashboard');
@@ -58,11 +70,8 @@ function ProfessorDetailClient({ professorData }) {
             </Grid>
 
             {/* Middle Right Section */}
-            <Grid item xs={6} textAlign="center">
-              {/* Replace this with your actual graph */}
-              <Typography variant="body1" sx={{ fontFamily: 'Arial, sans-serif' }}>
-                [Graph Placeholder]
-              </Typography>
+            <Grid item xs={3.5} textAlign="center">
+              <Pie data={chartData} />
             </Grid>
           </Grid>
         </Grid>
@@ -75,16 +84,52 @@ function ProfessorDetailClient({ professorData }) {
           >
             Reviews:
           </Typography>
-          <Typography 
-            variant="body1" 
-            sx={{ fontFamily: 'Arial, sans-serif', color: 'gray' }}
-          >
-            {professorData.reviews}
-          </Typography>
+          {professorData.reviews.map((review, index) => (
+            <Typography 
+              key={index}
+              variant="body1" 
+              sx={{ fontFamily: 'Arial, sans-serif', color: 'gray' }}
+            >
+              {review}
+            </Typography>
+          ))}
         </Grid>
       </Grid>
     </Box>
   );
+}
+
+function analyzeReviews(reviews) {
+  const sentiment = new Sentiment();
+  let positiveCount = 0;
+  let negativeCount = 0;
+  let neutralCount = 0;
+
+  reviews.forEach(review => {
+    const result = sentiment.analyze(review);
+    if (result.score > 0) {
+      positiveCount += 1;
+    } else if (result.score < 0) {
+      negativeCount += 1;
+    } else {
+      neutralCount += 1;
+    }
+  });
+
+  return { positive: positiveCount, negative: negativeCount, neutral: neutralCount };
+}
+
+function createChartData(sentimentData) {
+  return {
+    labels: ['Positive', 'Negative', 'Neutral'],
+    datasets: [
+      {
+        label: 'Sentiment Analysis',
+        data: [sentimentData.positive, sentimentData.negative, sentimentData.neutral],
+        backgroundColor: ['#4caf50', '#f44336', '#ffeb3b'], // Colors for positive, negative, neutral
+      },
+    ],
+  };
 }
 
 export default ProfessorDetailClient;

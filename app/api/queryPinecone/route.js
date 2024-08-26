@@ -60,7 +60,7 @@ export async function retrieveDataFromPinecone(id) {
 
     // Query Pinecone by ID or specific vector
     const queryResponse = await index.namespace('ns1').fetch([id]);
-    console.log(queryResponse);
+    //console.log(queryResponse);
     // Ensure that the response contains data
     if (!queryResponse ) {
       throw new Error(`No data found for ID: ${id}`);
@@ -68,7 +68,7 @@ export async function retrieveDataFromPinecone(id) {
 
     // Retrieve the vector by ID
     const result = queryResponse.records[id].metadata;
-    console.log(result);
+    //console.log(result);
     // Ensure that the result is valid
     if (!result) {
       throw new Error(`No vector found for ID: ${id}`);
