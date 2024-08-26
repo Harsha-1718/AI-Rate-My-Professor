@@ -7,7 +7,7 @@ import { useAuth } from '../context/authContext';
 
 export default function About() {
   const [developers, setDevelopers] = useState([]);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(''); // This state controls the input value
   const [isLoading, setIsLoading] = useState(false);
   const [hasClicked, setHasClicked] = useState(false); 
   const { user } = useAuth();
@@ -20,19 +20,47 @@ export default function About() {
     try {
       const fetchedDevelopers = await fetchDevelopers();
       setDevelopers(fetchedDevelopers);
+
+      // Add a message to the chat after fetching developers
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: 'assistant', content: "Here you see the developers." },
+      ]);
+      
     } catch (error) {
       console.error("Error fetching developers:", error);
     } finally {
-      setIsLoading(false); // Ensure loading state is reset
+      setIsLoading(false); 
     }
   };
 
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Who are the developers for RateGenius?",
+      content: "Want to know who developed RateGenius? Just type 'Developers'.",
     },
   ]);
+
+  const handleMessageSubmit = () => {
+    const normalizedMessage = message.trim().toLowerCase();
+    const expectedMessage = "developers";
+    
+    if (normalizedMessage === expectedMessage) {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: 'user', content: message },
+        { role: 'assistant', content: "Fetching developers' information..." },
+      ]);
+      handleFetchDevelopers();
+    } else {
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: 'user', content: message },
+        { role: 'assistant', content: "Please type 'Developers' to get more information." },
+      ]);
+    }
+    setMessage(''); // Clear the input field after submission
+  };
 
   return (
     <Box
@@ -121,13 +149,7 @@ export default function About() {
                         border="3px solid black"
                         p={2}
                       >
-                        {message.role === 'user' && isValidURL(message.content) ? (
-                          <a href={message.content} target="_blank" rel="noopener noreferrer" style={{ color: 'blue', textDecoration: 'underline' }}>
-                            {message.content}
-                          </a>
-                        ) : (
-                          message.content
-                        )}
+                        {message.content}
                       </Box>
                     </Box>
                   </motion.div>
@@ -136,14 +158,14 @@ export default function About() {
               </Stack>
               <Stack direction={'row'} spacing={2}>
                 <TextField
-                  label="Want to know about developers"
+                  label="Type 'Developers'"
                   fullWidth
-                  value=""
-                  disabled={true} 
+                  value={message}  // Bind value to message state
+                  onChange={(e) => setMessage(e.target.value)}  // Update state on change
                 />
                 <Button 
                   variant="contained" 
-                  onClick={handleFetchDevelopers}
+                  onClick={handleMessageSubmit}  // Handle submission
                   disabled={isLoading}
                   sx={{
                     backgroundColor: 'black',
@@ -204,17 +226,17 @@ async function fetchDevelopers() {
     {
       username: 'pravallikabollavaram',
       name: 'Pravallika Bollavaram',
-      bio: 'Developed RateGenius. ',
+      bio: 'Webscraping Expert and Sentiment Analyst',
     },
     {
       username: 'sairamsreejith0',
       name: 'Venkata Sairam Nagilla',
-      bio: 'Developed RateGenius.',
+      bio: 'Pinecone Specialist and Rag Model Implementer',
     },
     {
       username: 'harsha-1718',
-      name: 'Harshavardhan Reddy Yarmareddy',
-      bio: 'Developed RateGenius. ',
+      name: 'Harshavardhan Yarmareddy',
+      bio: 'UI DesignerUser Authentication Specialist',
     },
   ];
 

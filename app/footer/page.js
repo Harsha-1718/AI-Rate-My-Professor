@@ -31,12 +31,12 @@ const Footer = () => {
       }}
     >
       <Typography variant="body1">
-        © 2024 RateMyProfessorAI
+        © 2024 RateGenius
       </Typography>
       <Link 
         href="/about"
         onClick={handleAboutUsClick} 
-        sx={{ color: 'white', textDecoration: 'none', '&:hover': { color: 'green' } }}
+        sx={{ color: 'white', textDecoration: 'none', '&:hover': { color: 'grey' } }}
       >
         About Us
       </Link>
