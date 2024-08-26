@@ -1,5 +1,5 @@
 'use client';
-import { Box, Stack, TextField, Button, Grid, Divider } from '@mui/material';
+import { Box, Stack, TextField, Button, Grid } from '@mui/material';
 import { useState, useEffect, useRef } from 'react';
 import { FaArrowUp } from "react-icons/fa";
 import ProfessorList from '../Professors/page';
@@ -8,35 +8,68 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/authContext';
 
 export default function Dashboard() {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: "Hello! I'm the Rate My Professor support assistant. How can I help you today?",
-    },
-  ]);
+  const initialAssistantMessage = {
+    role: 'assistant',
+    content: "Hello! I'm the Rate My Professor support assistant. How can I help you today?",
+  };
+
+  const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [professorData,setProfessorData] = useState([]);
+  const [professorData, setProfessorData] = useState([]);
   const { user } = useAuth();
   const router = useRouter();
+
+  // Load data from localStorage specific to the user
+  useEffect(() => {
+    if (typeof window !== 'undefined' && user) {
+      const savedMessages = localStorage.getItem(`messages_${user.uid}`);
+      const loadedMessages = savedMessages ? JSON.parse(savedMessages) : [];
+
+      if (loadedMessages.length === 0) {
+        // If no messages were loaded, set the initial assistant message
+        setMessages([initialAssistantMessage]);
+      } else {
+        // If messages were loaded, make sure the initial assistant message is the first one
+        if (loadedMessages[0].content !== initialAssistantMessage.content) {
+          loadedMessages.unshift(initialAssistantMessage);
+        }
+        setMessages(loadedMessages);
+      }
+
+      const savedProfessorData = localStorage.getItem(`professorData_${user.uid}`);
+      if (savedProfessorData) {
+        setProfessorData(JSON.parse(savedProfessorData));
+      }
+    }
+  }, [user]);
+
+  // Save data to localStorage whenever messages or professorData changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && user) {
+      localStorage.setItem(`messages_${user.uid}`, JSON.stringify(messages));
+      localStorage.setItem(`professorData_${user.uid}`, JSON.stringify(professorData));
+    }
+  }, [messages, professorData, user]);
 
   // Redirect to login if user is not authenticated
   useEffect(() => {
     if (user === undefined) return;
+  
   }, [user, router]);
 
   function mapScrapedToProcessed(scrapedData) {
     return {
-        professor: {
-            name: scrapedData.professorInfo.name || "N/A",
-            university: scrapedData.professorInfo.university || "N/A",
-            rating: scrapedData.professorInfo.rating || "N/A",
-            department: scrapedData.professorInfo.department || "N/A",
-            reviews: scrapedData.professorInfo.reviews || []
-        },
-        score: scrapedData.professorInfo.score || 0.0 // Assuming a score field is part of the processed data
+      professor: {
+        name: scrapedData.professorInfo.name || "N/A",
+        university: scrapedData.professorInfo.university || "N/A",
+        rating: scrapedData.professorInfo.rating || "N/A",
+        department: scrapedData.professorInfo.department || "N/A",
+        reviews: scrapedData.professorInfo.reviews || []
+      },
+      score: scrapedData.professorInfo.score || 0.0 // Assuming a score field is part of the processed data
     };
-}
+  }
 
   // Function to validate if the input string is a URL
   function isValidURL(string) {
@@ -48,23 +81,29 @@ export default function Dashboard() {
     if (!message.trim()) return;
 
     setIsLoading(true);
-    const isURL = isValidURL(message);
 
-    if (isURL) {
-      console.log("The input is a valid URL:", message);
-      setMessages((messages) => [
-        ...messages,
-        { role: 'user', content: message },
+    // Check if the message contains a Rate My Professors URL
+    const rateMyProfessorsURLPattern = /https?:\/\/www\.ratemyprofessors\.com\/professor\/\d+/g;
+    const matchedURLs = message.match(rateMyProfessorsURLPattern);
+
+    if (matchedURLs && matchedURLs.length > 0) {
+      // If the message contains a Rate My Professors URL, extract and process the URL
+      const url = matchedURLs[0];
+      console.log("The input contains a valid Rate My Professors URL:", url);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { role: 'user', content: url },
         { role: 'assistant', content: 'Processing the link and fetching details...' },
       ]);
-      await handleScrapeAndProcess(message); // Call the scrape function if it's a valid URL
+      await handleScrapeAndProcess(url); // Call the scrape function with the extracted URL
     } else {
-      console.log("The input is not a URL");
-      // Handle the regular text input case
-      setMessages((messages) => [
-        ...messages,
+      console.log("The input does not contain a valid Rate My Professors URL");
+
+      // Update chat component with user message
+      setMessages((prevMessages) => [
+        ...prevMessages,
         { role: 'user', content: message },
-        { role: 'assistant', content: '' },
+        { role: 'assistant', content: '' }, // Placeholder for the assistant's response
       ]);
 
       try {
@@ -81,7 +120,6 @@ export default function Dashboard() {
         if (pineconeResponse.ok) {
           pineconeData = await pineconeResponse.json();
           setProfessorData(pineconeData);
-          console.log(professorData);
           console.log('Pinecone Data:', pineconeData);
         }
 
@@ -104,23 +142,26 @@ export default function Dashboard() {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
 
+        let assistantResponse = ''; // Collect the response in this variable
+
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
           const text = decoder.decode(value, { stream: true });
-          setMessages((messages) => {
-            let lastMessage = messages[messages.length - 1];
-            let otherMessages = messages.slice(0, messages.length - 1);
+          assistantResponse += text;
+          setMessages((prevMessages) => {
+            let lastMessage = prevMessages[prevMessages.length - 1];
+            let otherMessages = prevMessages.slice(0, prevMessages.length - 1);
             return [
               ...otherMessages,
-              { ...lastMessage, content: lastMessage.content + text },
+              { ...lastMessage, content: assistantResponse }, // Update with accumulated response
             ];
           });
         }
       } catch (error) {
         console.error('Error:', error);
-        setMessages((messages) => [
-          ...messages,
+        setMessages((prevMessages) => [
+          ...prevMessages,
           { role: 'assistant', content: "I'm sorry, but I encountered an error. Please try again later." },
         ]);
       }
@@ -150,7 +191,7 @@ export default function Dashboard() {
 
       // Set the professorData state
       setProfessorData([processedData]);
-      console.log(processedData);
+      console.log('Processed Data:', processedData);
 
       // Step 2: Upsert the scraped data into Pinecone
       const processResponse = await fetch('/api/upsert', {
@@ -166,9 +207,8 @@ export default function Dashboard() {
       }
 
       const processData = await processResponse.json();
-   
 
-      // Step 3: Generate a summary for the scraped professor data
+      // Step 3: Generate a summary for the scraped professor data and stream it
       const summaryResponse = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -192,18 +232,25 @@ export default function Dashboard() {
         const { done, value } = await reader.read();
         if (done) break;
         summaryContent += decoder.decode(value, { stream: true });
-      }
 
-      // Step 4: Update the messages with the summary
-      setMessages((messages) => [
-        ...messages,
-        { role: 'assistant', content: `Here's what I found for the link: ${url}\n\n${summaryContent}` },
-      ]);
+        // Stream the summary content as it's being generated
+        setMessages((prevMessages) => {
+          const lastMessage = prevMessages[prevMessages.length - 1];
+          const otherMessages = prevMessages.slice(0, prevMessages.length - 1);
+          return [
+            ...otherMessages,
+            {
+              ...lastMessage,
+              content: `Here's what I found for the link: ${url}\n\n${summaryContent}`,
+            },
+          ];
+        });
+      }
 
     } catch (error) {
       console.error('Error during scraping and processing:', error);
-      setMessages((messages) => [
-        ...messages,
+      setMessages((prevMessages) => [
+        ...prevMessages,
         { role: 'assistant', content: "An error occurred while processing the URL. Please try again." },
       ]);
     } finally {
@@ -245,14 +292,6 @@ export default function Dashboard() {
   const listVariants = {
     hidden: { scale: 0.8, opacity: 0 },
     visible: { scale: 1, opacity: 1, transition: { duration: 0.6 } },
-  };
-
-  const dividerVariants = {
-    hidden: { scaleY: 0 },
-    visible: {
-      scaleY: 1,
-      transition: { duration: 0.8, ease: "easeInOut" },
-    },
   };
 
   // Redirect or show a loading state if user is not authenticated
@@ -382,7 +421,7 @@ export default function Dashboard() {
             animate="visible"
             variants={listVariants}
           >
-            <ProfessorList professordata = {professorData}/>
+            <ProfessorList professordata={professorData} />
           </motion.div>
         </Grid>
       </Grid>
