@@ -6,13 +6,10 @@ import { useAuth } from './context/authContext'; // Custom hook to access user d
 import { signOut } from 'firebase/auth';
 import { auth } from './firebase/config';
 import { useRouter } from 'next/navigation';
-// import SignIn from './signin/page';
-// import SignUp from './signup/page';
+
 
 const Navbar = () => {
-  const { user } = useAuth(); // Access the user object
-  // const [openSignIn, setOpenSignIn] = useState(false);
-  // const [openSignUp, setOpenSignUp] = useState(false);
+  const { user } = useAuth();
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -25,11 +22,6 @@ const Navbar = () => {
   };
   
 
-  // const handleOpenSignIn = () => setOpenSignIn(true);
-  // const handleCloseSignIn = () => setOpenSignIn(false);
-
-  // const handleOpenSignUp = () => setOpenSignUp(true);
-  // const handleCloseSignUp = () => setOpenSignUp(false);
 
   return (
     <AppBar position="static"  sx={{ backgroundColor: 'black' }} >
@@ -61,43 +53,9 @@ const Navbar = () => {
             </Button>
           </>
         ) 
-        // : (
-        //   <>
-        //     <Button color="inherit"  onClick={handleOpenSignIn} sx={{
-        //       border:'2px solid white', marginRight:'13px','&:hover': {
-        //         backgroundColor: 'grey'
-        //       }, 
-              
-        //     }}>
-        //       Sign In
-        //     </Button>
-        //     <Button color="inherit" onClick={handleOpenSignUp} sx={{
-        //       border:'2px solid white','&:hover': {
-        //         backgroundColor: 'grey'}
-        //     }}>
-        //       Sign Up
-        //     </Button>
-        //   </>
-        // )
         :(<></>)
         }
       </Toolbar>
-
-
-      {/* <Dialog open={openSignIn} onClose={handleCloseSignIn}>
-
-        <DialogContent>
-          <SignIn onClose={handleCloseSignIn} />
-        </DialogContent>
-      </Dialog>
-
-
-      <Dialog open={openSignUp} onClose={handleCloseSignUp} >
-
-        <DialogContent>
-          <SignUp onClose={handleCloseSignUp} />
-        </DialogContent>
-      </Dialog> */}
     </AppBar>
   );
 };
