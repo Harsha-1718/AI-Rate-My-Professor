@@ -23,7 +23,7 @@ function ProfessorList({ professordata }) {
           >
             <CardHeader 
               title={professor.professor.name} 
-              subheader={professor.professor.university} 
+             
               sx={{
                 color: "white",
                 backgroundImage: 'linear-gradient(to right, #434343, #000000)',
