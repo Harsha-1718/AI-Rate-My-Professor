@@ -18,6 +18,8 @@
   - npm install axios
   - npm install playwright
   - npx playwright install
+  - npm install sentiment react-chartjs-2 chart.js
+
 
 
 - Set up the .env.local file:
