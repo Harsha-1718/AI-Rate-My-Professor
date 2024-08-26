@@ -6,6 +6,7 @@ import ProfessorList from '../Professors/page';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/authContext';
+// import Navbar from '../navbar';
 
 export default function Dashboard() {
   const initialAssistantMessage = {
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [professorData, setProfessorData] = useState([]);
+ 
   const { user } = useAuth();
   const router = useRouter();
 
@@ -52,9 +54,57 @@ export default function Dashboard() {
     }
   }, [messages, professorData, user]);
 
-  // Redirect to login if user is not authenticated
+  // Load data from localStorage specific to the user
   useEffect(() => {
-    if (user === undefined) return;
+    if (typeof window !== 'undefined' && user) {
+      const savedMessages = localStorage.getItem(`messages_${user.uid}`);
+      const loadedMessages = savedMessages ? JSON.parse(savedMessages) : [];
+
+      if (loadedMessages.length === 0) {
+        // If no messages were loaded, set the initial assistant message
+        setMessages([initialAssistantMessage]);
+      } else {
+        // If messages were loaded, make sure the initial assistant message is the first one
+        if (loadedMessages[0].content !== initialAssistantMessage.content) {
+          loadedMessages.unshift(initialAssistantMessage);
+        }
+        setMessages(loadedMessages);
+      }
+
+      const savedProfessorData = localStorage.getItem(`professorData_${user.uid}`);
+      if (savedProfessorData) {
+        setProfessorData(JSON.parse(savedProfessorData));
+      }
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      router.push('/'); // Redirect to landing page
+      event.returnValue = ''; // For browsers that require a returnValue
+    };
+
+    window.addEventListener('popstate', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('popstate', handleBeforeUnload);
+    };
+  }, [router]);
+
+  // Save data to localStorage whenever messages or professorData changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && user) {
+      localStorage.setItem(`messages_${user.uid}`, JSON.stringify(messages));
+      localStorage.setItem(`professorData_${user.uid}`, JSON.stringify(professorData));
+    }
+  }, [messages, professorData, user]);
+
+  // Redirect to landing page if user is not authenticated
+  useEffect(() => {
+    if (user === undefined || user === null) {
+      router.push('/'); // Redirect to landing page if user is not authenticated
+    }
   
   }, [user, router]);
 
@@ -298,6 +348,7 @@ export default function Dashboard() {
   if (user === undefined || user === null) return null;
 
   return (
+    // <Navbar />,
     <Box
       width="100vw"
       height="85vh"
@@ -307,8 +358,8 @@ export default function Dashboard() {
       p={2}
     >
       <Grid container sx={{ height: '100%' }} spacing={2}> {/* Added spacing between grid items */}
-        {/* Adjusting the width of the chat component */}
-        <Grid item xs={12} md={6} sx={{ pr: 1 }}> {/* Set md to 6 to make it half screen */}
+        {/* Adjusted grid item xs and md values */}
+        <Grid item xs={12} md={6} sx={{ pr: 1 }}>
           <motion.div
             initial="hidden"
             animate="visible"
