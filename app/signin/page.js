@@ -71,7 +71,7 @@ export default function SignIn({ toggleForm }) {
           marginBottom: '20px',
         }}
       >
-        Don't have an account?
+         Don&apos;t have an account?
       </Typography>
       {error && <Alert severity="error" sx={{ mb: 2, backgroundColor: 'black', color: 'white', border: '1px solid white' }}>{error}</Alert>}
       <form onSubmit={handleSignIn} style={{ width: '100%' }}>
