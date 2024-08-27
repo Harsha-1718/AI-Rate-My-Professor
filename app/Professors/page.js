@@ -2,6 +2,15 @@ import { Grid, Card, CardHeader, CardContent, Typography, Button, CardActions } 
 import Link from 'next/link';
 
 function ProfessorList({ professordata }) {
+  // Check if professordata is defined and not empty
+  if (!professordata || professordata.length === 0) {
+    return (
+      <Typography variant="h6" color="white">
+        No professors available at the moment.
+      </Typography>
+    );
+  }
+
   return (
     <Grid container spacing={3}>
       {professordata.map((professor) => (
