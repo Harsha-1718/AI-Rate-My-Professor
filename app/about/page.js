@@ -1,22 +1,39 @@
 'use client';
 import { Box, Stack, TextField, Button, Grid, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FaArrowUp } from "react-icons/fa";
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/authContext';
 
 export default function About() {
   const [developers, setDevelopers] = useState([]);
-  const [message, setMessage] = useState(''); // This state controls the input value
+  const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [hasClicked, setHasClicked] = useState(false); 
+  const [hasClicked, setHasClicked] = useState(false);
   const { user } = useAuth();
+
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      content: "Want to know who developed RateGenius? Just type 'Developers'.",
+    },
+  ]);
+
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleFetchDevelopers = async () => {
     if (!hasClicked) {
-      setHasClicked(true); 
+      setHasClicked(true);
     }
-    setIsLoading(true); 
+    setIsLoading(true);
     try {
       const fetchedDevelopers = await fetchDevelopers();
       setDevelopers(fetchedDevelopers);
@@ -26,31 +43,27 @@ export default function About() {
         ...prevMessages,
         { role: 'assistant', content: "Here you see the developers." },
       ]);
-      
+
+      setHasClicked(false); // Reset hasClicked to false after fetching is complete
+
     } catch (error) {
       console.error("Error fetching developers:", error);
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
-
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: "Want to know who developed RateGenius? Just type 'Developers'.",
-    },
-  ]);
 
   const handleMessageSubmit = () => {
     const normalizedMessage = message.trim().toLowerCase();
     const expectedMessage = "developers";
-    
+
     if (normalizedMessage === expectedMessage) {
       setMessages((prevMessages) => [
         ...prevMessages,
         { role: 'user', content: message },
         { role: 'assistant', content: "Fetching developers' information..." },
       ]);
+      setHasClicked(true); // Set hasClicked to true to prevent further clicks until the fetching is complete
       handleFetchDevelopers();
     } else {
       setMessages((prevMessages) => [
@@ -59,7 +72,7 @@ export default function About() {
         { role: 'assistant', content: "Please type 'Developers' to get more information." },
       ]);
     }
-    setMessage(''); // Clear the input field after submission
+    setMessage('');
   };
 
   return (
@@ -69,7 +82,7 @@ export default function About() {
       display="flex"
       flexDirection="column"
       p={5}
-      overflow="hidden" 
+      overflow="hidden"
     >
       <Typography
         variant="h5"
@@ -78,12 +91,20 @@ export default function About() {
           color: 'black',
           fontWeight: 'bold',
           textTransform: 'uppercase',
-          
         }}
       >
         About Us
       </Typography>
-      <Grid container sx={{ height: '100%', width: '100%' }} spacing={2}>
+      <Grid 
+  container 
+  sx={{ 
+    height: '100%', 
+    width: '100%', 
+    spacing: 2, 
+    overflowY: 'auto', 
+    overflowX: 'hidden' 
+  }} 
+>
         <Grid item xs={12} md={6} sx={{ pr: 1 }}>
           <motion.div
             initial="hidden"
@@ -98,7 +119,7 @@ export default function About() {
               p={2}
               spacing={2}
               bgcolor="white"
-              sx={{ overflow: 'hidden' }} // Prevents overflow within Stack
+              sx={{ overflow: 'hidden' }}
             >
               <Stack
                 direction={'column'}
@@ -154,23 +175,26 @@ export default function About() {
                     </Box>
                   </motion.div>
                 ))}
-                <div />
+                <div ref={messagesEndRef} /> {/* Reference to scroll to */}
               </Stack>
               <Stack direction={'row'} spacing={2}>
                 <TextField
                   label="Type 'Developers'"
                   fullWidth
                   value={message}  // Bind value to message state
-                  onChange={(e) => setMessage(e.target.value)}  // Update state on change
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                    setHasClicked(false); // Allow the button to be clicked again when the user types a new message
+                  }}  // Update state on change
                 />
                 <Button 
                   variant="contained" 
                   onClick={handleMessageSubmit}  // Handle submission
-                  disabled={isLoading}
+                  disabled={isLoading || hasClicked} // Disable the button if loading or hasClicked is true
                   sx={{
                     backgroundColor: 'black',
                     color: 'white',
-                    cursor: hasClicked ? 'not-allowed' : 'pointer', // Change cursor style based on click state
+                    cursor: hasClicked ? 'not-allowed' : 'pointer',
                     '&:hover': {
                       backgroundColor: 'green',
                     },
@@ -226,17 +250,17 @@ async function fetchDevelopers() {
     {
       username: 'pravallikabollavaram',
       name: 'Pravallika Bollavaram',
-      bio: 'Webscraping Expert and Sentiment Analyst',
+      bio: 'Scraped data and implemented sentiment analysis',
     },
     {
       username: 'sairamsreejith0',
       name: 'Venkata Sairam Nagilla',
-      bio: 'Pinecone Specialist and Rag Model Implementer',
+      bio: 'Managed Pinecone and Implemented RAG model',
     },
     {
       username: 'harsha-1718',
       name: 'Harshavardhan Yarmareddy',
-      bio: 'UI DesignerUser Authentication Specialist',
+      bio: 'Designed the UI and implemented user authentication',
     },
   ];
 

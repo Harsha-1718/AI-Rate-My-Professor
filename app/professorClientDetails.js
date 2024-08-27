@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Box, Grid, Button, Typography } from '@mui/material';
+import { Box, Grid, Button, Typography, Paper, Divider } from '@mui/material';
 import Sentiment from 'sentiment';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -18,12 +18,12 @@ function ProfessorDetailClient({ professorData }) {
   // Create chart data
   const chartData = createChartData(sentimentData);
 
-  function OnClickButton(){
+  function OnClickButton() {
     router.push('/dashboard');
   }
 
   return (
-    <Box sx={{ padding: 4 }}>
+    <Box sx={{ padding: 4, bgcolor: '#f0f2f5', minHeight: '100vh' }}>
       <Grid container spacing={4}>
         {/* Top Section */}
         <Grid item xs={12} textAlign="left">
@@ -33,10 +33,11 @@ function ProfessorDetailClient({ professorData }) {
             sx={{
               backgroundColor: 'black',
               color: 'white',
-              border: '1px solid white',
+              borderRadius: '8px',
+              padding: '10px 20px',
+              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
               '&:hover': {
-                backgroundColor: 'white',
-                color: 'black',
+                backgroundColor: 'grey',
               },
             }}
           >
@@ -47,52 +48,77 @@ function ProfessorDetailClient({ professorData }) {
         {/* Middle Section */}
         <Grid item xs={12}>
           <Grid container spacing={4}>
-            {/* Middle Left Section */}
-            <Grid item xs={6}>
-              <Typography 
-                variant="h4" 
-                sx={{ fontFamily: 'Arial, sans-serif', fontWeight: 'bold' }}
-              >
-                {professorData.name}
-              </Typography>
-              <Typography 
-                variant="h6" 
-                sx={{ fontFamily: 'Arial, sans-serif', color: 'gray' }}
-              >
-                Department: {professorData.department}
-              </Typography>
-              <Typography 
-                variant="h6" 
-                sx={{ fontFamily: 'Arial, sans-serif', color: 'gray' }}
-              >
-                Rating: {professorData.rating}
-              </Typography>
+            {/* Middle Left Section (70%) */}
+            <Grid item xs={8.4}>
+              <Paper sx={{ backgroundColor: 'black', padding: 6, borderRadius: '12px', boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)' }}>
+                <Typography 
+                  variant="h2" 
+                  sx={{ fontFamily: 'Roboto, sans-serif', fontWeight: 'bold', color: 'white', marginBottom: 2 }}
+                >
+                  {professorData.name}
+                </Typography>
+                <Divider sx={{ marginBottom: 2, borderColor: 'white' }} />
+                <Typography 
+                  variant="h4" 
+                  sx={{ fontFamily: 'Roboto, sans-serif', color: 'white' }}
+                >
+                  {<b>Department:</b>} {professorData.department}
+                </Typography>
+                <Typography 
+                  variant="h4" 
+                  sx={{ fontFamily: 'Roboto, sans-serif', color: 'white' }}
+                >
+                  {<b>Rating:</b>} {professorData.rating}
+                </Typography>
+              </Paper>
             </Grid>
 
-            {/* Middle Right Section */}
-            <Grid item xs={3.5} textAlign="center">
-              <Pie data={chartData} />
+            {/* Middle Right Section (30%) */}
+            <Grid item xs={3.6}>
+              <Paper sx={{ backgroundColor: 'black', padding: 2, borderRadius: '12px', boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)' }}>
+                <Typography color='white' variant='h5'>
+                  {<b>Sentiment Analysis</b>}
+                </Typography>
+                <Pie 
+                  data={chartData} 
+                  options={{ 
+                    plugins: { 
+                      legend: { 
+                        display: true, 
+                        position: 'bottom',
+                        labels: {
+                          color: 'white', // Change legend text color to white
+                        },
+                      } 
+                    }, 
+                    aspectRatio: 1 
+                  }} 
+                />
+              </Paper>
             </Grid>
           </Grid>
         </Grid>
 
         {/* Bottom Section */}
         <Grid item xs={12}>
-          <Typography 
-            variant="h5" 
-            sx={{ fontFamily: 'Arial, sans-serif', fontWeight: 'bold' }}
-          >
-            Reviews:
-          </Typography>
-          {professorData.reviews.map((review, index) => (
+          <Paper sx={{ backgroundColor: 'black', padding: 2, borderRadius: '12px', boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)' }}>
             <Typography 
-              key={index}
-              variant="body1" 
-              sx={{ fontFamily: 'Arial, sans-serif', color: 'gray' }}
+              variant="h4" 
+              sx={{ fontFamily: 'Roboto, sans-serif', fontWeight: 'bold', color: 'white', marginBottom: 2 }}
             >
-              {review}
+              Reviews:
             </Typography>
-          ))}
+            <Divider sx={{ marginBottom: 2, borderColor: 'white' }} />
+            {professorData.reviews.map((review, index) => (
+              <Typography 
+                key={index}
+                variant="h6" 
+                sx={{ fontFamily: 'Roboto, sans-serif', color: 'white', marginBottom: 1 }}
+              >
+                {review}
+              </Typography>
+            ))}
+          </Paper>
         </Grid>
       </Grid>
     </Box>
@@ -124,7 +150,6 @@ function createChartData(sentimentData) {
     labels: ['Positive', 'Negative', 'Neutral'],
     datasets: [
       {
-        label: 'Sentiment Analysis',
         data: [sentimentData.positive, sentimentData.negative, sentimentData.neutral],
         backgroundColor: ['#4caf50', '#f44336', '#ffeb3b'], // Colors for positive, negative, neutral
       },
