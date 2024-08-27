@@ -1,23 +1,29 @@
 'use client';
+import { useState } from 'react';
 import Image from "next/image";
 import { Button } from "@mui/material";
 import { FaArrowRight } from "react-icons/fa";
 import { useRouter } from 'next/navigation';
 import { motion } from "framer-motion";
 import { useAuth } from '../context/authContext'; // Adjust the import path as needed
+ // Import the Loading component
 
 export default function Landingpage() {
   const { user } = useAuth(); // Get user from auth context
   const router = useRouter();
-
+  
   const handleButtonClick = () => {
-    if (user) {
-      router.push('/dashboard'); // Navigate to dashboard if user is signed in
-    } else {
-      router.push('/landerpage'); // Navigate to /landerpage if user is not signed in
-    }
+    
+    setTimeout(() => {
+      if (user) {
+        router.push('/dashboard'); // Navigate to dashboard if user is signed in
+      } else {
+        router.push('/landerpage'); // Navigate to /landerpage if user is not signed in
+      }
+    }, 1000); // Simulate a short delay before navigation (optional)
   };
 
+ 
   return (
     <div
       style={{
@@ -26,7 +32,6 @@ export default function Landingpage() {
         alignItems: 'center',
         height: '100vh',
         padding: '25px',
-        // marginBottom:'20%',
       }}
     >
       <motion.div
@@ -40,14 +45,14 @@ export default function Landingpage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          Welcome to Rate My <br /> Professor AI
+          Welcome to RateGenius
         </motion.h1>
         <motion.h6
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
         >
-          Your AI Companion is ready
+          Your Smart Professor Insight Engine is Ready to Assist
         </motion.h6>
 
         <motion.div
@@ -68,7 +73,7 @@ export default function Landingpage() {
             }}
             onClick={handleButtonClick}
           >
-            Ask our AI <FaArrowRight />
+            Ask the Genius <FaArrowRight />
           </Button>
         </motion.div>
       </motion.div>
@@ -84,7 +89,7 @@ export default function Landingpage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          Rate My Professor AI
+          RateGenius
         </motion.h3>
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
