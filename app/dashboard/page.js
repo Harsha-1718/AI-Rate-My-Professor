@@ -11,7 +11,7 @@ import { useAuth } from '../context/authContext';
 export default function Dashboard() {
   const initialAssistantMessage = {
     role: 'assistant',
-    content: "Hello! I'm the Rate My Professor support assistant. How can I help you today?",
+    content: "Hi there! I'm your RateGenius support assistant. How can I assist you today?",
   };
 
   const [messages, setMessages] = useState([]);

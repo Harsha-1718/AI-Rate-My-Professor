@@ -13,9 +13,6 @@ export default function About() {
   const { user } = useAuth();
 
   const handleFetchDevelopers = async () => {
-    if (!hasClicked) {
-      setHasClicked(true); 
-    }
     setIsLoading(true); 
     try {
       const fetchedDevelopers = await fetchDevelopers();
@@ -26,7 +23,9 @@ export default function About() {
         ...prevMessages,
         { role: 'assistant', content: "Here you see the developers." },
       ]);
-      
+
+      setHasClicked(false); // Reset hasClicked to false after fetching is complete
+
     } catch (error) {
       console.error("Error fetching developers:", error);
     } finally {
@@ -51,6 +50,7 @@ export default function About() {
         { role: 'user', content: message },
         { role: 'assistant', content: "Fetching developers' information..." },
       ]);
+      setHasClicked(true); // Set hasClicked to true to prevent further clicks until the fetching is complete
       handleFetchDevelopers();
     } else {
       setMessages((prevMessages) => [
@@ -78,7 +78,6 @@ export default function About() {
           color: 'black',
           fontWeight: 'bold',
           textTransform: 'uppercase',
-          
         }}
       >
         About Us
@@ -161,12 +160,15 @@ export default function About() {
                   label="Type 'Developers'"
                   fullWidth
                   value={message}  // Bind value to message state
-                  onChange={(e) => setMessage(e.target.value)}  // Update state on change
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                    setHasClicked(false); // Allow the button to be clicked again when the user types a new message
+                  }}  // Update state on change
                 />
                 <Button 
                   variant="contained" 
                   onClick={handleMessageSubmit}  // Handle submission
-                  disabled={isLoading}
+                  disabled={isLoading || hasClicked} // Disable the button if loading or hasClicked is true
                   sx={{
                     backgroundColor: 'black',
                     color: 'white',
@@ -226,17 +228,17 @@ async function fetchDevelopers() {
     {
       username: 'pravallikabollavaram',
       name: 'Pravallika Bollavaram',
-      bio: 'Webscraping Expert and Sentiment Analyst',
+      bio: 'Scraped data and implemented sentiment analysis',
     },
     {
       username: 'sairamsreejith0',
       name: 'Venkata Sairam Nagilla',
-      bio: 'Pinecone Specialist and Rag Model Implementer',
+      bio: 'Managed Pinecone and Implemented RAG model',
     },
     {
       username: 'harsha-1718',
       name: 'Harshavardhan Yarmareddy',
-      bio: 'UI DesignerUser Authentication Specialist',
+      bio: 'Designed the UI and implemented user authentication',
     },
   ];
 
