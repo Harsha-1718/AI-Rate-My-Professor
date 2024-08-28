@@ -1,9 +1,10 @@
 'use client';
-import { Box, Stack, TextField, Button, Grid, Typography,Image } from '@mui/material';
+import { Box, Stack, TextField, Button, Grid, Typography } from '@mui/material';
 import { useState, useRef, useEffect } from 'react';
 import { FaArrowUp } from "react-icons/fa";
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/authContext';
+import Image from 'next/image'; // Correctly import the Image component
 
 export default function About() {
   const [developers, setDevelopers] = useState([]);
@@ -38,13 +39,12 @@ export default function About() {
       const fetchedDevelopers = await fetchDevelopers();
       setDevelopers(fetchedDevelopers);
 
-      // Add a message to the chat after fetching developers
       setMessages((prevMessages) => [
         ...prevMessages,
         { role: 'assistant', content: "Here you see the developers." },
       ]);
 
-      setHasClicked(false); // Reset hasClicked to false after fetching is complete
+      setHasClicked(false);
 
     } catch (error) {
       console.error("Error fetching developers:", error);
@@ -63,7 +63,7 @@ export default function About() {
         { role: 'user', content: message },
         { role: 'assistant', content: "Fetching developers' information..." },
       ]);
-      setHasClicked(true); // Set hasClicked to true to prevent further clicks until the fetching is complete
+      setHasClicked(true);
       handleFetchDevelopers();
     } else {
       setMessages((prevMessages) => [
@@ -96,15 +96,15 @@ export default function About() {
         About Us
       </Typography>
       <Grid 
-  container 
-  sx={{ 
-    height: '100%', 
-    width: '100%', 
-    spacing: 2, 
-    overflowY: 'auto', 
-    overflowX: 'hidden' 
-  }} 
->
+        container 
+        sx={{ 
+          height: '100%', 
+          width: '100%', 
+          spacing: 2, 
+          overflowY: 'auto', 
+          overflowX: 'hidden' 
+        }} 
+      >
         <Grid item xs={12} md={6} sx={{ pr: 1 }}>
           <motion.div
             initial="hidden"
@@ -175,22 +175,22 @@ export default function About() {
                     </Box>
                   </motion.div>
                 ))}
-                <div ref={messagesEndRef} /> {/* Reference to scroll to */}
+                <div ref={messagesEndRef} />
               </Stack>
               <Stack direction={'row'} spacing={2}>
                 <TextField
                   label="Type 'Developers'"
                   fullWidth
-                  value={message}  // Bind value to message state
+                  value={message}
                   onChange={(e) => {
                     setMessage(e.target.value);
-                    setHasClicked(false); // Allow the button to be clicked again when the user types a new message
-                  }}  // Update state on change
+                    setHasClicked(false);
+                  }}
                 />
                 <Button 
                   variant="contained" 
-                  onClick={handleMessageSubmit}  // Handle submission
-                  disabled={isLoading || hasClicked} // Disable the button if loading or hasClicked is true
+                  onClick={handleMessageSubmit}
+                  disabled={isLoading || hasClicked}
                   sx={{
                     backgroundColor: 'black',
                     color: 'white',
@@ -225,10 +225,12 @@ export default function About() {
                     bgcolor="black"
                     color={"white"}
                   >
-                    <Image
+                    <img
                       src={dev.image}
                       alt={dev.name}
-                      style={{ borderRadius: '50%', width: '80px', height: '80px' }}
+                      width={80}
+                      height={80}
+                      style={{ borderRadius: '50%' }}
                     />
                     <Box mt={1} textAlign="center">
                       <strong>{dev.name}</strong>
