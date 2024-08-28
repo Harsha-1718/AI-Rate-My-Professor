@@ -1,5 +1,5 @@
 'use client';
-import { Box, Stack, TextField, Button, Grid, Typography } from '@mui/material';
+import { Box, Stack, TextField, Button, Grid, Typography,Image } from '@mui/material';
 import { useState, useRef, useEffect } from 'react';
 import { FaArrowUp } from "react-icons/fa";
 import { motion } from 'framer-motion';
@@ -225,7 +225,7 @@ export default function About() {
                     bgcolor="black"
                     color={"white"}
                   >
-                    <img
+                    <Image
                       src={dev.image}
                       alt={dev.name}
                       style={{ borderRadius: '50%', width: '80px', height: '80px' }}
